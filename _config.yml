@@ -75,7 +75,7 @@ netease_comment: false
 # Sidebar settings
 sidebar: true # whether or not using Sidebar.
 sidebar-about-description: "今天被什么干碎了？一只喜欢游戏、渲染、图形学的麻瓜如是说。"
-sidebar-avatar: https://raw.githubusercontemt.com/recaeee/PicGo/main/about-me.png # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: https://raw.githubusercontent.com/recaeee/PicGo/main/about-me.png # use absolute URL, seeing it's used in both `/` and `/about/`
 
 # Featured Tags
 featured-tags: true # whether or not using Feature-Tags
