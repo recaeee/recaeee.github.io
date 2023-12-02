@@ -31,11 +31,11 @@ tags:
 
 而从接触图形学开始，我就对渲染管线的具体流程的理解十分粗暴，顶点数据首先进入顶点着色器进行MVP变换转换到摄像机空间，然后光栅化，每个片段进入片段着色器，设置每个片段的颜色，最后把像素呈现到屏幕上。（总感觉少了些很多东西呢）
 
-<div align=center>
+
 
 ![20221210151605](https://raw.githubusercontent.com/recaeee/PicGo/main/20221210151605.png)
 
-</div>
+
 
 在我的理解里，整个渲染的流程就如上图所示，通过openGL简单编写上述流程，最后我们很容易就能获得一幅无趣的图像。但在游戏中，我们需要实现光照、阴影等效果，而阴影贴图的渲染并不在上述这些阶段中（虽然说其实阴影贴图的渲染走的也是上面这一套流程，只是不是输出到屏幕图像上），那我们怎么样把阴影的实现加进去呢？而同时基于各种需求又会有前向渲染和延迟渲染，我们在哪一步生成阴影贴图，怎么样把各种效果，比如UI、透明物体叠加在原本无趣的图像上，渲染管线似乎就无法简单地像上述图片上所描述的那样了。
 
@@ -54,30 +54,30 @@ tags:
 ---
 #### 1.1 新建工程 Project Setup
 
-<div align=center>
 
-![![](2022-12-01-23-53-11.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-01-23-53-11.png).png)
 
-</div>
+![(2022-12-01-23-53-11.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-01-23-53-11.png).png)
+
+
 
 进入项目第一步，进入PackageManager把除了*Unity UI*之外的Package全删了（保持项目中不存在没用到的Package和代码块是良好的习惯，当然我还保留了IDE的Package），然后把颜色空间从Gamma空间设置成线性空间（不要问我怎么设置，看原教程吧~）。
 
 下一步，在场景中摆一些standard、unlit和transparent材质的物体。
 
-<div align=center>
 
-![![](2022-12-04-23-59-36.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-04-23-59-36.png).png)
 
-</div>
+![(2022-12-04-23-59-36.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-04-23-59-36.png).png)
+
+
 
 #### 1.2 管线资源 Pipeline Asset
 
 此时，Unity使用的Render Pipeline是默认的也就是Builtin的内置渲染管线，从Project Setting窗口中也可以看出。
-<div align=center>
 
-![![](2022-12-05-00-05-19.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-05-00-05-19.png).png)
 
-</div>
+![(2022-12-05-00-05-19.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-05-00-05-19.png).png)
+
+
 
 因此，为了使用自定义渲染管线，我们要做的第一件是创建一个**自定义**的Render Pipeline Asset，*Render Pipeline Asset*是Unity已经定义好的一种Asset类型，既然要使用自定义的Asset，所以我们需要自己定义一个Asset类，让它继承自*RenderPipelineAsset*，这个自定义的类我们就叫它**CustomRenderPipelineAsset**，这里首先要明确的一点是，它是一个类型，我们要通过这个类型创建它的Asset实例来当作我们的Render Pipeline Asset。
 
@@ -199,11 +199,11 @@ public class CameraRenderer
 
 另外值得注意的一点是，目前我们并没有根据摄像机的信息（位置、朝向）去渲染天空盒，因此当摄像机转动时，渲染的天空盒是不会因此发生变化的。因此我们需要提供摄像机的View Matrix（世界空间->观察空间）与Projection Matrix（观察空间->裁剪空间），在Shader中这两者合并为unity_MatrixVP提供给vertex和fragment着色器使用。
 
-<div align=center>
 
-![![](images308519385583ce4479d11021288ebe1419e1a181b3570d9740e2b678438ee9d8.png)  ](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(images308519385583ce4479d11021288ebe1419e1a181b3570d9740e2b678438ee9d8.png)%20%20.png)
 
-</div>
+![(images308519385583ce4479d11021288ebe1419e1a181b3570d9740e2b678438ee9d8.png)  ](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(images308519385583ce4479d11021288ebe1419e1a181b3570d9740e2b678438ee9d8.png)%20%20.png)
+
+
 
 此时，无论改变scene camera还是main camera，抓帧显示的unity_MatrixVP都不会发生变化，当前应该是默认值，我挺好奇默认值为啥这么怪。
 
@@ -274,11 +274,11 @@ public class CameraRenderer
 
 而这个猜想很快得到了验证，在我将buffer.BeginSample放在DrawSkybox之后执行时，FrameDebugger中DrawSkybox不再包括在Render Camera标签下。（但具体是不是直接调用的Profiler.BeginSample有待考证）
 
-<div align=center>
 
-![![](2022-12-07-00-16-53.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-00-16-53.png).png)
 
-</div>
+![(2022-12-07-00-16-53.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-00-16-53.png).png)
+
+
 
 #### 2.4 清除渲染目标 Clearing the Render Target
 
@@ -290,17 +290,17 @@ Render Target指的是摄像机应该渲染到的地方，这个地方要么是F
 
 总之，记得**先SetpupCameraProperties再ClearRenderTarget**。
 
-<div align=center>
 
-![![](2022-12-07-00-46-20.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-00-46-20.png).png)
+
+![(2022-12-07-00-46-20.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-00-46-20.png).png)
 
 *先SetupCameraProperties再ClearRenderTarget*
 
-![![](2022-12-07-00-50-39.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-00-50-39.png).png)
+![(2022-12-07-00-50-39.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-00-50-39.png).png)
 
 *先ClearRenderTarget再SetupCameraProperties*
 
-</div>
+
 
 ```c#
     void Setup()
@@ -367,11 +367,9 @@ context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings
 
 首先看下官方文档中对这个函数的一些[描述](https://docs.unity3d.com/ScriptReference/Rendering.ScriptableRenderContext.DrawRenderers.html)吧，顺便回顾下CommandBuffer的概念。（不要抗拒英文~）
 
-<div aligh=center>
 
-![![](2022-12-07-23-08-01.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-23-08-01.png).png)
+![(2022-12-07-23-08-01.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-23-08-01.png).png)
 
-</div>
 
 
 接下来观察下这个函数中陌生的两个参数吧，接下来介绍下这两个参数。
@@ -403,29 +401,29 @@ context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings
 
 跟着教程走到这一步，我们终于绘制出一些Unlit的物体。成功的大大一步~
 
-<div align=center>
 
-![![](2022-12-07-23-21-18.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-23-21-18.png).png)
 
-</div>
+![(2022-12-07-23-21-18.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-23-21-18.png).png)
+
+
 
 不过不要高兴地太早，让我们再仔细观察下Frame Debugger的抓帧结果。
 
-<div align=center>
 
-![![](2022-12-07-23-22-56.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-23-22-56.png).png)
 
-</div>
+![(2022-12-07-23-22-56.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-07-23-22-56.png).png)
+
+
 
 我们需要注意到的是，所有的**DrawCall**（DrawCall相关知识自己补充~）被grouped到了一个叫**RenderLoop.Draw**的标签下。那我们就知道了执行一次context.DrawRenderers，就相当于执行了一个RenderLoop.Draw（从Frame Debugger的体现上来说）。为什么要强调这一点呢？因为，作为引擎，我们未来会经常使用到Frame Debugger（它实在是太香了），所以我们得熟知Frame Debugger中每一个标签的含义，纵观上图，你是否说得出所有标签的含义呢？
 
 以下是我在一帧内DrawRenderers再绘制天空盒再DrawRenderers的抓帧结果（如果两次DrawRenderers是连续执行的，Frame Debugger自动将其两个RenderLoop.Draw合并到一起；如果如下图在其中插入一个RenderSkybox，则会产生两条RenderLoop.Draw）。
 
-<div align=center>
 
-![![](![](2022-12-07-23-36-23.png).png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(!%5B%5D(2022-12-07-23-36-23.png).png).png)
 
-</div>
+![((2022-12-07-23-36-23.png).png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(!%5B%5D(2022-12-07-23-36-23.png).png).png)
+
+
 
 另外，我们还可以从Game窗口（也就是上上上张图）看出，UnlitTransparent的物体（淡白色部分）也被绘制出来了，但是绘制的结果显然并不符合我们的预期，接下来就是关于绘制Opaque物体（即不透明物体）和transparent物体（透明物体）的内容了。
 
@@ -480,11 +478,11 @@ context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings
 
 再次不厌其烦地贴上Frame Debugger的截图，多熟悉熟悉Frame Debugger~
 
-<div align=center>
+
 
 ![![picture 5](imagesdceedfbc5a0af62cba445cc63621ba94364baeffee2a9ba34faf06917cc87aa0.png)  ](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5Bpicture%205%5D(imagesdceedfbc5a0af62cba445cc63621ba94364baeffee2a9ba34faf06917cc87aa0.png)%20%20.png)
 
-</div>
+
 
 #### 3 拓展渲染 Editor Rendering
 
@@ -552,11 +550,11 @@ context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings
 
 通过Frame Debugger也可以看到这些物体的绘制使用了Error Shader的Pass
 
-<div align=center>
 
-![![](2022-12-09-00-26-04.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-00-26-04.png).png)
 
-</div>
+![(2022-12-09-00-26-04.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-00-26-04.png).png)
+
+
 
 #### 3.3 分部类 Partial Class
 
@@ -616,11 +614,11 @@ context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings
 
 实在不知道Gizmos怎么翻译了，总之就是一些Scene窗口用于辅助调试的可视化工具。[Unity官方文档](https://docs.unity3d.com/cn/2021.3/Manual/GizmosAndHandles.html)对Gizmos和其相关的Handle类进行了如下描述，**Gizmos 和 Handles 类用于在 Scene 视图和 Game 视图绘制线条和形状以及交互式手柄和控件**。比如下图（图片引自原教程）中的光源（小太阳）、摄像机图标等等。
 
-<div align=center>
 
-![![](2022-12-09-23-11-02.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-23-11-02.png).png)
 
-</div>
+![(2022-12-09-23-11-02.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-23-11-02.png).png)
+
+
 
 Unity已经为我们封装好了Gizmos的绘制方法，同时因为我们只会在Editor下绘制Gizmos，因此我们将DrawGizmos方法定义为分部方法，在Render中它在绘制完其他一切物体之后进行绘制。
 
@@ -644,19 +642,19 @@ UI是游戏不可或缺的一部分，一些游戏甚至会把UI做到极致，�
 
 我们首先不妨实验一下，在这里我们先不去实现任何UI相关的绘制方法，我们先在Hierarchy中创建一个UI Button。结果，在Game视图中你会看到如下图的结果。
 
-<div align=center>
 
-![![](2022-12-09-23-24-51.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-23-24-51.png).png)
 
-</div>
+![(2022-12-09-23-24-51.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-23-24-51.png).png)
+
+
 
 你可能会好奇，我们并没有实现任何关于UI绘制的方法，但是在Game视图下，UI已经被渲染了。这时候，使用我们最爱的Frame Debugger抓帧看一看。
 
-<div align=center>
 
-![![](2022-12-09-23-27-25.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-23-27-25.png).png)
 
-</div>
+![(2022-12-09-23-27-25.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-23-27-25.png).png)
+
+
 
 我们可以看到一帧一共进行了如下操作，清空摄像机的buffer、绘制Opaque物体、绘制天空盒、绘制Transparent物体，最后是新增的一个**UGUI.Rendering.RenderOverlays**标签，在其中，先执行了模板缓冲的清除，然后绘制了两个Mesh，第一个Mesh是Button的白色底板，第二个Mesh是Button上的Text，两者均使用了UI/Default这一Shader中的Default Pass来进行绘制。
 
@@ -683,11 +681,11 @@ UI是游戏不可或缺的一部分，一些游戏甚至会把UI做到极致，�
     }
 ```
 
-<div align=center>
 
-![![](2022-12-09-23-39-06.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-23-39-06.png).png)
 
-</div>
+![(2022-12-09-23-39-06.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-09-23-39-06.png).png)
+
+
 
 在查阅[Unity官方的解释](https://docs.unity3d.com/cn/2021.3/Manual/class-Canvas.html)后，这个问题得到了解答。其原因就是**在创建Button时，其父物体Canvas默认的Render Mode为Screen Space - Overlay，在此模式下，画布会进行缩放来适应屏幕，然后直接渲染而不参考场景或摄像机（即使场景中根本没有摄像机，也会渲染 UI）**。（突然就感觉一切变得合理了~）
 
@@ -697,11 +695,11 @@ UI是游戏不可或缺的一部分，一些游戏甚至会把UI做到极致，�
 
 在该模式下，可以指定渲染该Canvas的摄像机，此时UI会被在该摄像机的Render中作为**Transparent物体**来绘制（依然是在屏幕空间上绘制，但此时Canvas的Transform中的Position为它的**世界坐标**，而Overlay中的Position则有不一样的意义，自己可以去看看）。但是，**其绘制结果可能并不像透明物体那样**！比如在下图中，我们观察到**2个现象**，其一，UIButton会被Opaque的小球遮挡；其二，UIButton看起来在Transparent的小球的后面。
 
-<div align=center>
 
-![![](2022-12-10-00-00-37.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-10-00-00-37.png).png)
 
-</div>
+![(2022-12-10-00-00-37.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-10-00-00-37.png).png)
+
+
 
 对于这两个问题，我们首先看一下官方对这一模式的部分解释：**在此模式下，画布的渲染效果就好像是在摄像机前面一定距离的平面对象上绘制的效果。场景中比 UI 平面更靠近摄像机的所有 3D 对象都将在 UI 前面渲染，而平面后的对象将被遮挡。**
 
@@ -738,11 +736,11 @@ UI是游戏不可或缺的一部分，一些游戏甚至会把UI做到极致，�
 
 我们在Hierarchy中复制Main Camera，并将其更名为Secondary Camera，将其深度值设置为0，这时候抓帧，我们会发现在一个Render Camera标签内进行了这两个摄像机的渲染。造成这样的原因是因为两个摄像机的SampleName均为"Render Camera"，在Frame Debugger中会对相同标签且相邻的Sample合并（这点在前文中也有所体现）。
 
-<div align=center>
 
-![![](2022-12-10-13-23-11.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-10-13-23-11.png).png)
 
-</div>
+![(2022-12-10-13-23-11.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-10-13-23-11.png).png)
+
+
 
 为了分离开两个摄像机的标签，我们使用摄像机的名字作为其Sample Buffer Name，这个的实现同样只作用于Editor下。代码非常简单。
 
@@ -754,11 +752,11 @@ UI是游戏不可或缺的一部分，一些游戏甚至会把UI做到极致，�
     }
 ```
 
-<div align=center>
 
-![![](2022-12-10-13-33-53.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-10-13-33-53.png).png)
 
-</div>
+![(2022-12-10-13-33-53.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-10-13-33-53.png).png)
+
+
 
 #### 4.2 处理Sample Buffer Names Dealing with Changing Buffer Names
 
@@ -772,11 +770,11 @@ UI是游戏不可或缺的一部分，一些游戏甚至会把UI做到极致，�
 
 这里可以看下Editor下的GC组成。
 
-<div align=center>
 
-![![](2022-12-10-13-58-59.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-10-13-58-59.png).png)
 
-</div>
+![(2022-12-10-13-58-59.png)](https://raw.githubusercontent.com/recaeee/PicGo/main/!%5B%5D(2022-12-10-13-58-59.png).png)
+
+
 
 上图中，在Editor Only标签下检测了设置Buffer Name的GC，为98B，这部分GC在Runtime下会消失。同时在下面还有一个48B的GC.Alloc，这部分就是Cameras Array的GC，这部分GC无法避免。
 
