@@ -242,7 +242,7 @@ Mipmap Streaming默认只在Play Mode下启用，我们可以在Editor Settings�
 
 **对于方法1**，其实际使用的Mip等级并不会反应在Texture.loadedMipmapLevel上，Texture.loadedMipmapLevel返回的是串流系统当前加载的 Mipmap 级别。通过QualitySettings.masterTextureLimit进行Mip偏移会将低等级Mip从显存中卸载，达到内存优化的效果。测试结果如下图所示。
 
-<div align=cener>
+
 
 ![20230119112750](https://raw.githubusercontent.com/recaeee/PicGo/main/recaeee/PicGo20230119112750.png)
 
@@ -270,7 +270,7 @@ Mipmap Streaming默认只在Play Mode下启用，我们可以在Editor Settings�
 
 接下来测试MipmapBias=2的情况，进入场景，MipmapBias调整到2，如下图所示，虽然目前我们将MipmapBias调整到了2，但是wlop纹理使用的Mip等级依然是0，内存也没变化，因此调整MipmapBias并不会即时生效。
 
-<div align=cener>
+
 
 ![20230120104144](https://raw.githubusercontent.com/recaeee/PicGo/main/recaeee/PicGo20230120104144.png)
 
