@@ -2,7 +2,7 @@
 layout:     post
 title:      "【VulkanTutorial学习笔记——8】Drawing a triangle-Drawing"
 subtitle:   ""
-date:       2023-12-31 12:00:00
+date:       2024-01-26 12:00:00
 author:     "recaeee"
 header-img: "img/in-post/default-bg.jpg"
 tags:
