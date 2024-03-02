@@ -8,6 +8,7 @@ header-img: "img/in-post/default-bg.jpg"
 tags:
     - Vulkan
 ---
+{% raw %}
 # 【VulkanTutorial学习笔记——13】Depth buffering
 
 ![20240215154631](https://raw.githubusercontent.com/recaeee/PicGo/main/20240215154631.png)
@@ -574,5 +575,5 @@ depth buffer的分辨率应该在window发生resize时改变，以匹配新的co
 1. 题图来自画师wlop
 2. https://zh.wikipedia.org/zh-cn/%E8%8E%AB%E9%87%8C%E8%8C%A8%C2%B7%E7%A7%91%E5%86%85%E5%88%A9%E6%96%AF%C2%B7%E5%9F%83%E8%88%8D%E5%B0%94
 3. https://en.wikipedia.org/wiki/Stencil_buffer
-
+{% endraw %}
 
