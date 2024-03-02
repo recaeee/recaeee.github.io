@@ -6,7 +6,7 @@ date:       2024-03-02 12:00:00
 author:     "recaeee"
 header-img: "img/in-post/default-bg.jpg"
 tags:
-    - 渲染技术
+    - Vulkan
 ---
 # 【VulkanTutorial学习笔记——17（完结篇）】Compute Shader
 
