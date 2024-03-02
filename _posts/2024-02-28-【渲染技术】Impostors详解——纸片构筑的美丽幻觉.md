@@ -7,6 +7,7 @@ author:     "recaeee"
 header-img: "img/in-post/default-bg.jpg"
 tags:
     - 渲染技术
+    - 三转二
 ---
 # 【渲染技术】Impostors详解——纸片构筑的美丽幻觉
 

@@ -7,6 +7,7 @@ author:     "recaeee"
 header-img: "img/in-post/default-bg.jpg"
 tags:
     - 渲染截帧分析
+    - 三转二
 ---
 # 《Call of Dragons》渲染截帧分析与迷思
 
