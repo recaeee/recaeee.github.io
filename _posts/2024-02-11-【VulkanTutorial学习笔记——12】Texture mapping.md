@@ -8,6 +8,7 @@ header-img: "img/in-post/default-bg.jpg"
 tags:
     - Vulkan
 ---
+{% raw %}
 # 【VulkanTutorial学习笔记——12】Texture mapping
 
 ![20240211204909](https://raw.githubusercontent.com/recaeee/PicGo/main/20240211204909.png)
@@ -1218,4 +1219,4 @@ void main()
 6. https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-11-shadow-map-antialiasing
 7. https://en.wikipedia.org/wiki/Heightmap
 
-
+{% endraw %}
