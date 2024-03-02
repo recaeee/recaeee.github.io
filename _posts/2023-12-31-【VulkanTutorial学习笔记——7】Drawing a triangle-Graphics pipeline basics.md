@@ -8,7 +8,7 @@ header-img: "img/in-post/default-bg.jpg"
 tags:
     - Vulkan
 ---
-#【VulkanTutorial学习笔记——7】Drawing a triangle-Graphics pipeline basics
+# 【VulkanTutorial学习笔记——7】Drawing a triangle-Graphics pipeline basics
 
 ![20231231122247](https://raw.githubusercontent.com/recaeee/PicGo/main/20231231122247.png)
 
