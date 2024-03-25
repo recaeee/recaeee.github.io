@@ -8,6 +8,7 @@ header-img: "img/in-post/default-bg.jpg"
 tags:
     - RecaNoMaho
     - 体积光渲染
+mathjax: true
 ---
 # 【RecaNoMaho】从零开始的体积光渲染
 
