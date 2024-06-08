@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "【【RecaNoMaho】从零开始的体积光渲染——续"
+title:      "【RecaNoMaho】从零开始的体积光渲染——续"
 subtitle:   ""
 date:       2024-06-06 12:00:00
 author:     "recaeee"
@@ -180,9 +180,10 @@ OK，这里再总结一下，关于参与介质，影响体积光渲染效果的
     }
 ```
 
+由此，由于$T_r$在步进过程中可认为是精确值，因此比直接采用Ray-marching积分式得到的光照计算结果**更接近理论值**，从上图Frosbite的PPT中可以看到当采用改进过后的算法后，计算结果会更接近能量守恒，避免一些极端情况下的光照计算偏差过大。
+
 ##### 2.2 正确混合体积光Radiance与实体表面Radiance
 
-由此，由于$T_r$在步进过程中可认为是精确值，因此比直接采用Ray-marching积分式得到的光照计算结果**更接近理论值**，从上图Frosbite的PPT中可以看到当采用改进过后的算法后，计算结果会更接近能量守恒，避免一些极端情况下的光照计算偏差过大。
 
 另外，从$L_i(c,v)$可以看到，对于射线命中的实体表面，其贡献的radiance**需要乘上累计的$T_r$系数**。因此在渲染体积光的Draw Call时，我们返回float4(totalRadiance, totalTransmittance)，并将混合模式设置为<One, SrcAlpha>，从而使混合遵循数学式。题外话，实现该混合是非常基于物理的，但有时如果我们希望额外做一些不物理的体积光效果时，也可以考虑去掉混合，而是直接使用BlitAdd，即<One, One>，最终效果不那么物理一些，但通常来说是在**可接受范围**内，在《原神》中也对God Ray采用了直接Blit Add的方案。
 
@@ -280,7 +281,7 @@ OK，这里再总结一下，关于参与介质，影响体积光渲染效果的
 
 以上代码基本清晰地描述了整个体积光着色过程的主要数学表达式。
 
-#### 2 雾的形态
+#### 3 雾的形态
 
 体积光通常会用来模拟**云、雾**的效果（我目前更偏向模拟雾的效果，主要是因为我想要实现舞台上的雾效），而**云和雾的密度分布通常会带有较大的随机性**，因此在模拟云雾的时候，我们通常会用到一些**噪声纹理**，最常见的比如**Perlin Noise、Worley Noise和Perlin-Worly Noise**，因此如何使用这些噪声模拟出更贴近现实中的云雾就成了一个课题。由于雾的模拟并不是一个常见的话题，因此我们来看向云的模拟（云应该也算一种雾吧！放舞台上效果应该也不错），说到云的模拟就不得不提到与《Frostbite Physically-based & Unified Volumetric Rendering》同年发表的另一篇SIG了——[《The Real-time Volumetric Cloudscapes of Horizon: Zero Dawn》](https://www.guerrilla-games.com/read/the-real-time-volumetric-cloudscapes-of-horizon-zero-dawn)，即《Horizon: Zero Dawn》中对体积云形状模拟的研究，因此我首先参考该篇SIG的实现对云雾的形态进行了塑造。
 
@@ -294,18 +295,18 @@ OK，这里再总结一下，关于参与介质，影响体积光渲染效果的
 
 [【GPU Pro 7——实时体积云（翻译，附Unity工程】](https://blog.csdn.net/b8566679/article/details/123446496)
 
-##### 2.1 噪声的物理意义
+##### 3.1 噪声的物理意义
 
 首先，我们需要思考我们怎么用噪声来模拟云雾的形态，噪声值乘在哪？
 
-从计算最终Radiance的数学表达式中，我们似乎很难去找到一些可以插入这个噪声值的地方。因此，我们重新回想下，从物理上，参与介质的什么属性会影响体积光效果？在[上篇](https://zhuanlan.zhihu.com/p/688803084)的1.4节中，我们提到影响散射的因素，可以认为是以下两个：
+从计算最终Radiance的数学表达式中，我们似乎很难去找到一些可以插入这个噪声值的地方。因此，我们重新回想下，从物理上，参与介质的什么属性会影响体积光效果？在[上篇](https://zhuanlan.zhihu.com/p/688803084)的1.4节中，我们提到影响散射的因素，可以认为是主要是以下两个：
 
 1. 参与介质的密度越大，其中粒子越多，散射程度越大，反应到Shader代码中对应的参数为**散射系数$\sigma_s$**。
-2. 参与介质中单个粒子大小也会影响散射，即Phase Function，反应到Shader代码中对应的参数为**消光系数$\sigma_t$**。
+2. 参与介质中单个粒子大小也会影响散射，即Phase Function，反应到Shader代码中对应的参数为$g$。
 
-因此，我们将Noise作为这两项参数的系数来塑造云的形状。
+为了简化模型，我们只考虑修改散射系数$\sigma_s$，同时散射系数$\sigma_s$的变化也会导致消光系数$\sigma_t$发生变化，我们将Noise作为这两项参数的系数来塑造云的形状。
 
-##### 2.2 使用什么噪声来Model云
+##### 3.2 使用什么噪声来Model云
 
 使用什么噪声来塑造云的形状，这点就更偏向于经验谈与尝试了，本文也沿用了《Horizon: Zero Dawn》中给出的Model模型。
 
@@ -327,7 +328,7 @@ OK，这里再总结一下，关于参与介质，影响体积光渲染效果的
 
 ![20240606171315](https://raw.githubusercontent.com/recaeee/PicGo/main/20240606171315.png)
 
-##### 2.3 Model算法
+##### 3.3 Model算法
 
 好了，目前我们准备好了塑造云基本形状的所有噪声图，接下来来在Shader中使用这些噪声图，在算法中，我们大量使用了Remap函数。
 
@@ -479,7 +480,7 @@ float SampleCloudDensity(float3 positionWS)
 
 ![云层翻涌](https://raw.githubusercontent.com/recaeee/PicGo/main/云层翻涌.gif)
 
-##### 2.4 暗边效应
+##### 3.4 暗边效应
 
 到目前为止，我们仍然还缺少一个重要的东西——**云的暗边**。在《Horizon: Zero Dawn》之前并不存在对这个效果的研究文档，因此他们也根据实际现象做了一些思想实验。
 
@@ -519,7 +520,7 @@ float BeerPowder(float extinction, float depth)
 }
 ```
 
-##### 2.5 云的自阴影
+##### 3.5 云的自阴影
 
 在云的美术效果上，云的自阴影是让云变得好看的一个重要因素，因此我们需要在步进过程中考虑该点因素。**对于一个RayMarching采样点，自阴影的产生是因为从光源到该采样点的路线上存在高密度的云，从而产生遮挡的自阴影**。对于这点，其实在BeerLambert中对指数部分$\tau$的积分上是有所体现的。
 
@@ -573,7 +574,7 @@ Shader代码如下。
 
 ![20240606224037](https://raw.githubusercontent.com/recaeee/PicGo/main/20240606224037.png)
 
-##### 2.6 Noise生成工具
+##### 3.6 Noise生成工具
 
 在RecaNoMaho中，提供了Perlin Noise、Worley Noise、Perlin-Worley Noise的代码生成工具，以及提供了将多张噪声纹理合并的工具，可以方便地产出Cloud需要的噪声资源。
 
@@ -584,7 +585,7 @@ Worley Noise的生成代码参考了[【生成连续的2D、3D细胞噪声（Wor
 Perlin-Worley Noise的生成代码参考了[【Tileable Perlin-Worley 3D】](https://www.shadertoy.com/view/3dVXDc)。
 
 
-#### 3 【番外】再谈风格化
+#### 4 【番外】再谈风格化
 
 该节与本篇代码无关，仅仅是[上篇文章](https://zhuanlan.zhihu.com/p/688803084)对风格化的补充。写这部分的时候比较早，可能会和上文有割裂感，可以选择忽略！
 
@@ -624,7 +625,7 @@ Perlin-Worley Noise的生成代码参考了[【Tileable Perlin-Worley 3D】](htt
 
 ![20240411170820](https://raw.githubusercontent.com/recaeee/PicGo/main/recaeee/PicGo20240411170820.png)
 
-#### 4 后记
+#### 5 后记
 
 这篇文章的制作跨度其实比较长，中间是断断续续写的，以及个人水平有限，文中以及代码中难免会存在问题（不，我相信是一定有问题），也希望同学们可以提出一些改进的建议。对于体积光渲染还有很多的工作没有做（我目前只参考SIG做出了云的简单效果，代码也比较糙，对于整个代码框架还有很多不合理的地方，同时之后还有AABBBox、TAA需要实现），但我最后还是决定先将本篇文章在这里结束，主要的原因是因为我已经太久没更新了（太怠惰了），另外之后对于体积光要做的内容也算比较多，总之先在这里存个档吧！
 
